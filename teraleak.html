@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>$TERA — Teraleak</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;0,8..60,600;0,8..60,700;1,8..60,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+  :root{
+    --ink: #e7e1cd;
+    --ink-dim: #a49d87;
+    --bg: #0d0c08;
+    --bg-panel: #17150f;
+    --paper: #e9e3cd;
+    --paper-dim: #cdc6ac;
+    --paper-shadow: #100f0a;
+    --stamp: #a3311c;
+    --stamp-dim: #7a2617;
+    --terminal: #8ea888;
+    --gold: #c9a15a;
+    --line: #3a362a;
+    --serif: 'Source Serif 4', Georgia, serif;
+    --mono: 'IBM Plex Mono', 'Courier New', monospace;
+  }
+
+  *{ box-sizing: border-box; }
+
+  html{ scroll-behavior: smooth; }
+
+  body{
+    margin:0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--serif);
+    line-height: 1.5;
+    overflow-x: hidden;
+  }
+
+  /* film grain overlay */
+  body::before{
+    content:"";
+    position: fixed; inset:0;
+    pointer-events:none;
+    z-index: 200;
+    opacity: 0.05;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    mix-blend-mode: overlay;
+  }
+
+  a { color: inherit; }
+
+  .wrap{ max-width: 980px; margin: 0 auto; padding: 0 28px; }
+
+  /* ---------- top bar ---------- */
+  .topbar{
+    position: sticky; top:0; z-index: 100;
+    background: rgba(13,12,8,0.9);
+    backdrop-filter: blur(6px);
+    border-bottom: 1px solid var(--line);
+  }
+  .topbar-inner{
+    max-width: 980px; margin:0 auto; padding: 14px 28px;
+    display:flex; align-items:center; justify-content: space-between;
+  }
+  .brand{
+    font-family: var(--mono); font-size: 14px; letter-spacing: 0.02em;
+    display:flex; align-items:center; gap: 10px;
+  }
+  .brand .dot{
+    width:7px; height:7px; border-radius:50%;
+    background: var(--stamp);
+    box-shadow: 0 0 6px var(--stamp);
+    animation: blink 2.4s infinite;
+  }
+  @keyframes blink{ 0%,45%{opacity:1;} 50%,95%{opacity:0.25;} 100%{opacity:1;} }
+  .topnav{ display:flex; gap: 22px; font-family: var(--mono); font-size: 13px; color: var(--ink-dim); }
+  .topnav a{ text-decoration:none; }
+  .topnav a:hover{ color: var(--ink); }
+  .topbar-cta{
+    font-family: var(--mono); font-size: 12px;
+    border:1px solid var(--gold); color: var(--gold);
+    padding: 7px 14px; text-decoration:none;
+  }
+  .topbar-cta:hover{ background: var(--gold); color: var(--bg); }
+
+  @media (max-width: 640px){ .topnav{ display:none; } }
+
+  /* ---------- hero ---------- */
+  .hero{
+    padding: 72px 0 40px;
+    position: relative;
+  }
+  .case-tag{
+    font-family: var(--mono); font-size: 12px; color: var(--ink-dim);
+    display:flex; gap: 18px; flex-wrap: wrap; margin-bottom: 26px;
+    border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+    padding: 10px 0;
+  }
+  .case-tag span b{ color: var(--terminal); font-weight: 500; }
+
+  .hero-grid{
+    display:grid; grid-template-columns: 1.3fr 1fr; gap: 40px; align-items: start;
+  }
+  @media (max-width: 780px){ .hero-grid{ grid-template-columns: 1fr; } }
+
+  .hero h1{
+    font-size: clamp(38px, 6vw, 62px);
+    line-height: 1.04;
+    font-weight: 600;
+    margin: 0 0 20px;
+    letter-spacing: -0.01em;
+  }
+  .glitch-line{ display:block; position: relative; }
+  .glitch-line.play{ animation: settle 1.1s ease-out; }
+  @keyframes settle{
+    0%{ transform: translate(3px,0); text-shadow: -2px 0 var(--stamp), 2px 0 var(--terminal); opacity: 0.6; }
+    15%{ transform: translate(-2px,0); text-shadow: 2px 0 var(--stamp), -2px 0 var(--terminal); }
+    30%{ transform: translate(2px,0); text-shadow: -1px 0 var(--stamp), 1px 0 var(--terminal); }
+    50%{ transform: translate(-1px,0); text-shadow: 1px 0 var(--stamp), -1px 0 var(--terminal); opacity: 1;}
+    100%{ transform: translate(0,0); text-shadow: none; opacity: 1; }
+  }
+
+  .hero p.lede{
+    font-size: 19px; color: var(--ink-dim); max-width: 46ch; margin: 0 0 30px;
+  }
+
+  .ticker-badge{
+    display:inline-flex; align-items: baseline; gap: 10px;
+    font-family: var(--mono); background: var(--bg-panel);
+    border: 1px solid var(--line); padding: 10px 16px; margin-bottom: 30px;
+  }
+  .ticker-badge .sym{ color: var(--gold); font-size: 20px; font-weight: 600; }
+  .ticker-badge .name{ color: var(--ink-dim); font-size: 13px; }
+
+  .hero-ctas{ display:flex; gap: 14px; flex-wrap: wrap; }
+  .btn{
+    font-family: var(--mono); font-size: 14px; text-decoration:none;
+    padding: 14px 22px; display: inline-block; border: 1px solid transparent;
+    transition: transform 0.15s ease;
+  }
+  .btn-primary{ background: var(--stamp); color: var(--paper); }
+  .btn-primary:hover{ transform: translateY(-2px); background: var(--stamp-dim); }
+  .btn-ghost{ border-color: var(--line); color: var(--ink); }
+  .btn-ghost:hover{ border-color: var(--ink-dim); }
+
+  .contract-line{
+    margin-top: 16px; font-family: var(--mono); font-size: 12px; color: var(--ink-dim);
+    display:flex; align-items:center; gap: 8px;
+  }
+  .contract-line code{ color: var(--terminal); }
+
+  /* stamped document panel */
+  .doc-panel{
+    background: var(--paper); color: #1c1a12;
+    padding: 26px 24px 28px;
+    position: relative;
+    box-shadow: 10px 10px 0 var(--paper-shadow);
+    font-family: var(--mono);
+    font-size: 12.5px;
+    transform: rotate(0.6deg);
+  }
+  .doc-panel .stamp{
+    position:absolute; top: 18px; right: -14px;
+    border: 3px solid var(--stamp);
+    color: var(--stamp);
+    font-family: var(--mono); font-weight: 600; font-size: 15px;
+    letter-spacing: 0.08em;
+    padding: 5px 10px;
+    transform: rotate(9deg);
+    background: rgba(233,227,205,0.9);
+  }
+  .doc-panel h3{
+    font-family: var(--serif); font-size: 16px; margin: 0 0 14px; padding-right: 90px;
+    border-bottom: 1px solid #1c1a1240; padding-bottom: 10px;
+  }
+  .doc-row{ display:flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dashed #1c1a1230; gap: 10px; }
+  .doc-row span:first-child{ color: #5b5642; }
+  .redact{
+    background:#1c1a12; color:#1c1a12; user-select:none; border-radius: 1px;
+  }
+
+  /* ---------- marquee ---------- */
+  .marquee-wrap{
+    border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+    background: var(--bg-panel);
+    overflow: hidden; padding: 14px 0;
+    margin: 60px 0 0;
+  }
+  .marquee{
+    display:flex; gap: 40px; white-space: nowrap;
+    font-family: var(--mono); font-size: 13px; color: var(--terminal);
+    animation: scroll-left 34s linear infinite;
+    width: max-content;
+  }
+  .marquee span{ opacity: 0.85; }
+  .marquee span::after{ content: '//'; margin-left: 40px; color: var(--line); }
+  @keyframes scroll-left{ from{ transform: translateX(0);} to{ transform: translateX(-50%);} }
+  @media (prefers-reduced-motion: reduce){ .marquee{ animation: none; } .glitch-line.play{ animation:none; } }
+
+  /* ---------- section shell ---------- */
+  section{ padding: 84px 0; border-bottom: 1px solid var(--line); }
+  section:last-of-type{ border-bottom: none; }
+  .kicker{
+    font-family: var(--mono); font-size: 13px; color: var(--gold);
+    margin: 0 0 12px;
+  }
+  h2{
+    font-size: clamp(26px, 3.4vw, 36px); font-weight: 600; margin: 0 0 20px; letter-spacing: -0.01em;
+  }
+  .section-lede{ color: var(--ink-dim); max-width: 60ch; font-size: 17px; margin-bottom: 40px; }
+
+  /* ---------- narrative ---------- */
+  .narrative-grid{ display:grid; grid-template-columns: 1.2fr 0.8fr; gap: 50px; }
+  @media (max-width: 780px){ .narrative-grid{ grid-template-columns: 1fr; } }
+  .narrative-grid p{ color: var(--paper-dim); font-size: 17px; }
+  .narrative-grid p + p{ margin-top: 16px; }
+
+  .file-list{
+    font-family: var(--mono); font-size: 13px; border: 1px solid var(--line);
+  }
+  .file-list .file-list-head{
+    padding: 10px 14px; border-bottom: 1px solid var(--line); color: var(--ink-dim);
+  }
+  .file-item{
+    display:flex; justify-content: space-between; gap: 10px;
+    padding: 10px 14px; border-bottom: 1px solid var(--line);
+    color: var(--ink);
+  }
+  .file-item:last-child{ border-bottom:none; }
+  .file-item .sz{ color: var(--terminal); flex-shrink:0; }
+
+  /* ---------- manifest / tokenomics ---------- */
+  .manifest{
+    border: 1px solid var(--line);
+  }
+  .manifest-row{
+    display:grid; grid-template-columns: 200px 1fr; gap: 20px;
+    padding: 22px 22px; border-bottom: 1px solid var(--line);
+  }
+  .manifest-row:last-child{ border-bottom: none; }
+  .manifest-row .label{ font-family: var(--mono); color: var(--gold); font-size: 14px; }
+  .manifest-row .value{ color: var(--paper-dim); font-size: 16px; }
+  .manifest-row .value b{ color: var(--ink); font-weight: 600; }
+
+  /* ---------- how to buy ---------- */
+  .steps{ counter-reset: step; display:grid; gap: 0; }
+  .step{
+    display:grid; grid-template-columns: 56px 1fr; gap: 20px;
+    padding: 24px 0; border-bottom: 1px solid var(--line);
+  }
+  .step:last-child{ border-bottom: none; }
+  .step .num{
+    counter-increment: step; font-family: var(--mono); color: var(--stamp); font-size: 22px;
+  }
+  .step .num::before{ content: counter(step, decimal-leading-zero); }
+  .step h4{ margin: 0 0 6px; font-size: 18px; font-weight: 600; }
+  .step p{ margin:0; color: var(--ink-dim); font-size: 15px; max-width: 55ch; }
+
+  /* ---------- faq ---------- */
+  .faq-item{ border-bottom: 1px solid var(--line); }
+  .faq-item:first-child{ border-top: 1px solid var(--line); }
+  .faq-q{
+    width:100%; text-align:left; background:none; border:none; color: var(--ink);
+    font-family: var(--serif); font-size: 18px; padding: 20px 4px;
+    display:flex; justify-content: space-between; align-items:center; cursor:pointer;
+    gap: 20px;
+  }
+  .faq-q .ind{ font-family: var(--mono); color: var(--gold); font-size: 18px; flex-shrink:0; }
+  .faq-a{
+    max-height: 0; overflow: hidden; transition: max-height 0.25s ease;
+    color: var(--ink-dim); font-size: 15.5px;
+  }
+  .faq-a p{ padding: 0 4px 20px; margin:0; max-width: 62ch; }
+  .faq-item.open .faq-a{ max-height: 240px; }
+
+  /* ---------- footer ---------- */
+  footer{ padding: 50px 0 60px; }
+  .footer-grid{ display:flex; justify-content: space-between; flex-wrap: wrap; gap: 24px; align-items: flex-start; }
+  .footer-brand{ font-family: var(--mono); font-size: 13px; color: var(--ink-dim); max-width: 40ch; }
+  .footer-links{ display:flex; gap: 18px; font-family: var(--mono); font-size: 13px; }
+  .footer-links a{ text-decoration:none; color: var(--ink-dim); }
+  .footer-links a:hover{ color: var(--ink); }
+  .disclaimer{
+    margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--line);
+    font-family: var(--mono); font-size: 11.5px; color: #6b654f; max-width: 78ch; line-height: 1.6;
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="brand"><span class="dot"></span> TERALEAK_ARCHIVE.case</div>
+    <nav class="topnav">
+      <a href="#leak">the leak</a>
+      <a href="#manifest">manifest</a>
+      <a href="#buy">how to buy</a>
+      <a href="#faq">faq</a>
+    </nav>
+    <a class="topbar-cta" href="#buy">Buy $TERA</a>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <section class="hero" style="border-bottom:none; padding-bottom:0;">
+    <div class="case-tag">
+      <span>CASE NO. <b>0x54455241</b></span>
+      <span>STATUS: <b>UNSEALED</b></span>
+      <span>ORIGIN: <b>steampipe / 2003–2013</b></span>
+      <span>SIZE: <b>12.04 TB</b></span>
+    </div>
+
+    <div class="hero-grid">
+      <div>
+        <h1><span class="glitch-line" id="glitchTitle">Someone left the door open.</span></h1>
+        <p class="lede">Twelve terabytes of forgotten Steam history walked out on its own. Old builds. Cut content. Prototypes nobody was supposed to see again. $TERA is what crawled out while nobody was watching the server.</p>
+
+        <div class="ticker-badge">
+          <span class="sym">$TERA</span>
+          <span class="name">Teraleak — no team, no utility, no lock on the door</span>
+        </div>
+
+        <div class="hero-ctas">
+          <a href="#buy" class="btn btn-primary">Buy $TERA</a>
+          <a href="#leak" class="btn btn-ghost">Read the case file</a>
+        </div>
+
+        <div class="contract-line">
+          CA: <code id="caText">TBD — posted at launch, not before</code>
+        </div>
+      </div>
+
+      <div class="doc-panel">
+        <div class="stamp">LEAKED</div>
+        <h3>Evidence Log — Item 001</h3>
+        <div class="doc-row"><span>Source</span><span class="redact">██████████████</span></div>
+        <div class="doc-row"><span>Discovered</span><span>2026, unconfirmed date</span></div>
+        <div class="doc-row"><span>Contents</span><span>builds, assets, internal tools</span></div>
+        <div class="doc-row"><span>Earliest file</span><span>2003</span></div>
+        <div class="doc-row"><span>Latest file</span><span>2013</span></div>
+        <div class="doc-row"><span>Access</span><span class="redact">████ ████████</span></div>
+        <div class="doc-row"><span>Chain of custody</span><span>broken</span></div>
+        <div class="doc-row" style="border-bottom:none;"><span>Disposition</span><span>public, irreversibly</span></div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<div class="marquee-wrap">
+  <div class="marquee" id="marqueeTrack"></div>
+</div>
+
+<div class="wrap">
+
+  <section id="leak">
+    <p class="kicker">the leak</p>
+    <h2>Everything Valve thought was buried.</h2>
+    <div class="narrative-grid">
+      <div>
+        <p>Somewhere between an old build server and a forgotten backup drive, a decade of Steam's internal history got loose. Half-finished Half-Life assets. Portal test chambers that never shipped. Prototype tools with names nobody outside Valve was meant to read.</p>
+        <p>None of it was supposed to resurface. It did anyway. $TERA didn't come from a roadmap or a pitch deck — it came out of that same open door, riding the same leaked energy that's currently being picked apart by every corner of the internet at once.</p>
+        <p>There's no team behind this coin and nothing to redeem it for. It exists because the leak exists, and because someone was fast enough to name it before anyone else did.</p>
+      </div>
+      <div class="file-list">
+        <div class="file-list-head">/teraleak/steam_archive/ — sample listing</div>
+        <div class="file-item"><span>hl_proto_build_2004.7z</span><span class="sz">1.2 GB</span></div>
+        <div class="file-item"><span>portal_cut_chambers/</span><span class="sz">640 MB</span></div>
+        <div class="file-item"><span>steampipe_internal_tools/</span><span class="sz">3.8 GB</span></div>
+        <div class="file-item"><span>unused_hud_assets_2009.zip</span><span class="sz">210 MB</span></div>
+        <div class="file-item"><span>ep3_fragments_UNVERIFIED/</span><span class="sz">redacted</span></div>
+        <div class="file-item"><span>...</span><span class="sz">12.04 TB total</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="manifest">
+    <p class="kicker">manifest</p>
+    <h2>What's actually in the box.</h2>
+    <p class="section-lede">No presale, no roadmap slide deck, no promise of a game or an app. Just the coin and the terms it launched under.</p>
+    <div class="manifest">
+      <div class="manifest-row"><div class="label">Ticker</div><div class="value"><b>$TERA</b> — Teraleak</div></div>
+      <div class="manifest-row"><div class="label">Chain</div><div class="value">Solana, deployed via Pump.fun</div></div>
+      <div class="manifest-row"><div class="label">Supply</div><div class="value">Fixed at mint. No further issuance.</div></div>
+      <div class="manifest-row"><div class="label">Team allocation</div><div class="value">None held back</div></div>
+      <div class="manifest-row"><div class="label">Utility</div><div class="value">None. It's a meme built on a leak, not a product.</div></div>
+      <div class="manifest-row"><div class="label">Taxes / fees</div><div class="value">Standard Pump.fun bonding curve, no added buy/sell tax</div></div>
+    </div>
+  </section>
+
+  <section id="buy">
+    <p class="kicker">how to buy</p>
+    <h2>Getting $TERA</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="num"></div>
+        <div>
+          <h4>Get a Solana wallet</h4>
+          <p>Phantom or Solflare both work. Install the extension or app and fund it with a small amount of SOL.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="num"></div>
+        <div>
+          <h4>Buy SOL on an exchange</h4>
+          <p>Pick up SOL from any major exchange and send it to your wallet address. Leave a little extra for network fees.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="num"></div>
+        <div>
+          <h4>Find the contract address</h4>
+          <p>Only trust the CA posted from this page or the official socials at launch. Anything posted before launch is not us.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="num"></div>
+        <div>
+          <h4>Swap on Pump.fun</h4>
+          <p>Paste the CA into Pump.fun, connect your wallet, and swap SOL for $TERA. Confirm the transaction in your wallet.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="faq" style="border-bottom:none;">
+    <p class="kicker">faq</p>
+    <h2>Questions worth answering</h2>
+    <div id="faqList">
+      <div class="faq-item">
+        <button class="faq-q"><span>Is this affiliated with Valve or the actual leak?</span><span class="ind">+</span></button>
+        <div class="faq-a"><p>No. $TERA is a meme coin inspired by the leak's spread online. It has no connection to Valve, Steam, or whoever the source of the leak turns out to be.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q"><span>Does $TERA come with a game, app, or roadmap?</span><span class="ind">+</span></button>
+        <div class="faq-a"><p>No. There's no product attached and none planned. It's a coin built around a moment, not a company.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q"><span>Who's behind it?</span><span class="ind">+</span></button>
+        <div class="faq-a"><p>No named team. Ownership and any relevant contract details will be posted alongside the CA at launch.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q"><span>Is this financial advice?</span><span class="ind">+</span></button>
+        <div class="faq-a"><p>No. Meme coins are volatile and can go to zero. Only ever risk what you can afford to lose.</p></div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  <div class="wrap">
+    <div class="footer-grid">
+      <div class="footer-brand">$TERA — Teraleak. Built on a leak, not a promise. No team, no utility, no roadmap.</div>
+      <div class="footer-links">
+        <a href="#">X / Twitter</a>
+        <a href="#">Telegram</a>
+        <a href="#">Pump.fun</a>
+      </div>
+    </div>
+    <div class="disclaimer">
+      $TERA is a meme coin with no intrinsic value, no formal team, and no expectation of financial return. It is not affiliated with Valve Corporation, Steam, or any party involved in the referenced data leak, and it references that event for cultural commentary only. Cryptocurrency markets are highly volatile and speculative; you should independently verify any contract address before transacting and never invest more than you can afford to lose. This page is not financial advice.
+    </div>
+  </div>
+</footer>
+
+<script>
+  // hero glitch-in on load
+  window.addEventListener('load', () => {
+    const t = document.getElementById('glitchTitle');
+    requestAnimationFrame(() => t.classList.add('play'));
+  });
+
+  // marquee content, duplicated for seamless loop
+  const files = [
+    "hl_proto_build_2004.7z", "portal_test_chamber_09.vmf", "steampipe_internal_tool.exe",
+    "unused_hud_assets_2009.zip", "cut_dialogue_ep2.wav", "l4d_beta_infected.mdl",
+    "source2_early_shader.fx", "dota_prototype_hero.vpk", "css_removed_map.bsp",
+    "internal_build_notes_2011.txt", "ep3_fragments_UNVERIFIED.rar", "gman_unused_lines.wav"
+  ];
+  const track = document.getElementById('marqueeTrack');
+  const doubled = [...files, ...files];
+  track.innerHTML = doubled.map(f => `<span>${f}</span>`).join('');
+
+  // faq accordion
+  document.querySelectorAll('.faq-item').forEach(item => {
+    const btn = item.querySelector('.faq-q');
+    btn.addEventListener('click', () => {
+      const isOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item.open').forEach(o => {
+        o.classList.remove('open');
+        o.querySelector('.ind').textContent = '+';
+      });
+      if (!isOpen){
+        item.classList.add('open');
+        item.querySelector('.ind').textContent = '–';
+      }
+    });
+  });
+</script>
+
+</body>
+</html>
